@@ -43,7 +43,7 @@ function startHeartbeat() {
   if (ws.readyState === WebSocket.OPEN) {
     console.log('Starting heartbeat...');
     sendHeartbeat();
-    heartbeatInterval = setInterval(sendHeartbeat, 30000);
+    heartbeatInterval = setInterval(sendHeartbeat, 30000); // Send heartbeat every 30 seconds
   }
 }
 
@@ -78,14 +78,14 @@ async function connectWebSocket() {
         if (payload.op === 10) {
           const interval = payload.d.heartbeat_interval;
           clearInterval(heartbeatInterval);
-          heartbeatInterval = setInterval(sendHeartbeat, interval);
+          heartbeatInterval = setInterval(sendHeartbeat, interval); // Adjust heartbeat interval based on server
         }
 
         if (payload.op === 11) {
-          lastHeartbeat = Date.now();
+          lastHeartbeat = Date.now(); // Update last heartbeat timestamp
         }
         if (payload.s) {
-          sequence = payload.s;
+          sequence = payload.s; // Keep track of the sequence number
         }
       } catch (error) {
         console.error('Error processing WebSocket message:', error);
@@ -94,15 +94,18 @@ async function connectWebSocket() {
 
     ws.on('close', () => {
       console.log('WebSocket disconnected. Reconnecting...');
+      clearInterval(heartbeatInterval); // Ensure heartbeat interval is cleared
       reconnect();
     });
 
     ws.on('error', (error) => {
       console.error('WebSocket error:', error);
+      clearInterval(heartbeatInterval); // Ensure heartbeat interval is cleared
+      reconnect();
     });
   } catch (error) {
     console.error('Error connecting WebSocket:', error);
-    setTimeout(connectWebSocket, 5000);
+    reconnect();
   }
 }
 
@@ -155,8 +158,11 @@ function sendHeartbeat() {
 function reconnect() {
   console.log('Attempting to reconnect in 5 seconds...');
   setTimeout(() => {
-    connectWebSocket();
+    connectWebSocket();  // Reconnect
   }, 5000);
 }
+
+
+connectWebSocket(); 
 
 module.exports = { presence, connectWebSocket, requestUserPresence, isUserInGuild };
