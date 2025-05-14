@@ -2,6 +2,7 @@
   "name": "discord-data-ws",
   "version": "0.1.0",
   "author": "Cyclone Addons",
+  "license": "MIT",
   "dependencies": {
     "discord-markdown": "^2.5.1",
     "dotenv": "^16.4.7",
